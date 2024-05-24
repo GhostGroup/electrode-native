@@ -1,4 +1,4 @@
-import { BundlingResult, reactnative, shell } from 'ern-core';
+import { BundlingResult, reactnative, shell, log, LogLevel } from 'ern-core';
 import fs from 'fs';
 import path from 'path';
 

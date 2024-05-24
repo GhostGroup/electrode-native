@@ -10,6 +10,7 @@ import kax from './kax';
 import util from 'util';
 import semver from 'semver';
 import os from 'os';
+import { LogLevel } from './coloredLog';
 
 const ex = util.promisify(exec);
 const sp = util.promisify(spawn);
@@ -61,12 +62,12 @@ export default class ReactNativeCli {
     if (template) {
       options.push(`--template ${template}`);
     }
-    const initCmd = `init ${projectName} ${options.join(' ')}`;
+    const initCmd = `init ${projectName} ${options.join(' ')} --install-pods`;
+
+    log.info(initCmd);
 
     if (semver.gte(rnVersion, '0.60.0')) {
-      return execp(
-        `npx --ignore-existing react-native@${rnVersion} ${initCmd}`,
-      );
+      return execp(`npx react-native@${rnVersion} ${initCmd}`);
     } else {
       return execp(`${this.binaryPath} ${initCmd}`);
     }
@@ -99,6 +100,8 @@ ${bundleOutput ? `--bundle-output=${bundleOutput}` : ''} \
 ${assetsDest ? `--assets-dest=${assetsDest}` : ''} \
 ${sourceMapOutput ? `--sourcemap-output=${sourceMapOutput}` : ''} \
 ${resetCache ? '--reset-cache' : ''}`;
+
+    log.info(`bundleCommand: ${bundleCommand}`);
 
     await execp(bundleCommand, { cwd: workingDir });
     if (!(await fs.pathExists(bundleOutput))) {
@@ -141,6 +144,7 @@ ${resetCache ? '--reset-cache' : ''}`;
     if (resetCache!!) {
       args.push(`--reset-cache`);
     }
+    log.info(`host: ${host}`);
     spawn(
       path.join(
         cwd,

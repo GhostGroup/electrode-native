@@ -1,11 +1,13 @@
 import { ContainerPublisherConfig } from './types';
 import getPublisher from './getPublisher';
-import { createTmpDir, Platform, shell } from 'ern-core';
+import { createTmpDir, log, Platform, shell } from 'ern-core';
 import path from 'path';
 
 export default async function publishContainer(conf: ContainerPublisherConfig) {
+  log.info(`Publishing container... [${conf.containerPath}]`);
   let publicationWorkingDir = conf.containerPath;
   if (!conf.inPlace) {
+    log.warn('Not in place!');
     // Duplicate the directory containing generated Container to a temporary
     // directory, and pass this temporary directory to the publisher.
     // This is done because Container generation and publication are
@@ -28,6 +30,7 @@ export default async function publishContainer(conf: ContainerPublisherConfig) {
   conf.ernVersion = Platform.currentVersion;
 
   const publisher = await getPublisher(conf.publisher);
+  log.info(`Publisher: ${publisher.name}`);
 
   if (!publisher.platforms.includes(conf.platform)) {
     throw new Error(

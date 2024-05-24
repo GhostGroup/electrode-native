@@ -2,6 +2,7 @@ import {
   AppVersionDescriptor,
   createTmpDir,
   kax,
+  log,
   NativePlatform,
   PackagePath,
 } from 'ern-core';
@@ -29,6 +30,7 @@ export async function generateContainerForRunner(
     extra?: any;
   },
 ): Promise<ContainerGenResult> {
+  log.info(`napDescriptor: ${napDescriptor}`);
   if (napDescriptor) {
     const composite = await kax.task('Generating Composite from Cauldron').run(
       runCauldronCompositeGen(napDescriptor, {

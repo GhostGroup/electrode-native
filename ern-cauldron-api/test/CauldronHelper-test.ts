@@ -2667,7 +2667,9 @@ describe('CauldronHelper.js', () => {
       const descriptor = AppNameDescriptor.fromString('test');
       assert(
         rejects(
-          cauldronHelper.getDescriptorsMatchingSemVerDescriptor(descriptor),
+          cauldronHelper.getDescriptorsMatchingSemVerDescriptor(
+            descriptor as AppVersionDescriptor,
+          ),
         ),
       );
     });
@@ -2777,10 +2779,10 @@ describe('CauldronHelper.js', () => {
       await cauldronHelper.addNativeApplicationVersion(targetDescriptor);
       assert(
         rejects(
-          cauldronHelper.copyNativeApplicationVersion(
-            sourceDescriptor,
-            targetDescriptor,
-          ),
+          cauldronHelper.copyNativeApplicationVersion({
+            source: sourceDescriptor,
+            target: targetDescriptor,
+          }),
         ),
       );
     });
@@ -2798,10 +2800,10 @@ describe('CauldronHelper.js', () => {
       );
       assert(
         rejects(
-          cauldronHelper.copyNativeApplicationVersion(
-            sourceDescriptor,
-            targetDescriptor,
-          ),
+          cauldronHelper.copyNativeApplicationVersion({
+            source: sourceDescriptor,
+            target: targetDescriptor,
+          }),
         ),
       );
     });

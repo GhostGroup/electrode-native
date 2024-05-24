@@ -53,8 +53,9 @@ export default class EphemeralFileStore implements ICauldronFileStore {
   }
 
   public async getFile(filename: string): Promise<Buffer | undefined> {
-    if (await fs.pathExists(this.getpathToFile(filename))) {
-      return fs.readFileSync(this.getpathToFile(filename));
+    const pathToFile = this.getpathToFile(filename);
+    if (await fs.pathExists(pathToFile)) {
+      return await fs.readFile(pathToFile);
     }
   }
 

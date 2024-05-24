@@ -533,6 +533,7 @@ export class Manifest {
     await this.initOverrideManifest();
     let manifestData: any = {};
     if (this.overrideManifest && this.manifestOverrideType === 'partial') {
+      log.info('partial');
       // Merge both manifests. If a dependency exists at two different versions in both
       // manifest, the ovveride will take precedence for the version
       const overrideManifestData = await this.overrideManifest.getManifestData({
@@ -558,11 +559,13 @@ export class Manifest {
         (d) => PackagePath.fromString(<string>d).name,
       );
     } else if (this.overrideManifest && this.manifestOverrideType === 'full') {
+      log.info('full');
       manifestData = await this.overrideManifest.getManifestData({
         manifestId,
         platformVersion,
       });
     } else {
+      log.info(`default: ${manifestId}`);
       manifestData = await this.masterManifest.getManifestData({
         manifestId,
         platformVersion,
@@ -939,6 +942,7 @@ export class Manifest {
 
 const manifestLocalConfig = config.get('manifest', {});
 const manifestLocalMasterUrl = manifestLocalConfig?.master?.url;
+log.info(`manifestLocalMasterUrl: ${manifestLocalMasterUrl}`);
 export const manifest = manifestLocalMasterUrl
   ? new Manifest(new LocalManifest(manifestLocalMasterUrl))
   : new Manifest(

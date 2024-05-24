@@ -20,38 +20,7 @@ export async function createMetroConfig({
   watchFolders?: string[];
   reactNativeVersion: string;
 }) {
-  return fs.writeFile(
-    path.join(cwd ?? path.resolve(), 'metro.config.js'),
-    beautify.js(`const blacklist = require('${getMetroBlacklistPath(
-      reactNativeVersion,
-    )}');
-module.exports = {
-  ${projectRoot ? `projectRoot: "${projectRoot}",` : ''}
-  ${
-    watchFolders
-      ? `watchFolders: [
-        ${watchFolders
-          .map((x) => `"${x.replace(/\\/g, '\\\\')}"`)
-          .join(`,${os.EOL}`)}
-      ],`
-      : ''
-  }
-  resolver: {
-    blacklistRE: blacklist([
-      // Ignore IntelliJ directories
-      /.*\\.idea\\/.*/,
-      // ignore git directories
-      /.*\\.git\\/.*/,
-      // Ignore android directories
-      /.*\\/app\\/build\\/.*/,
-      ${blacklistRe ? blacklistRe.join(`,${os.EOL}`) : ''}
-    ]),
-    ${
-      extraNodeModules
-        ? `extraNodeModules: ${JSON.stringify(extraNodeModules, null, 2)},`
-        : ''
-    }
-    assetExts: [
+  const assetsTxt = `assetExts: [
       // Image formats
       "bmp",
       "gif",
@@ -94,7 +63,87 @@ module.exports = {
     }),
     assetPlugins: ['ern-bundle-store-metro-asset-plugin'],
     babelTransformerPath: require.resolve("react-native-svg-transformer"),
-  },
+  },`;
+
+  const metroConfigJs = path.join(cwd ?? path.resolve(), 'metro.config.js');
+
+  if (semver.gte(reactNativeVersion, '0.74.0')) {
+    return fs.writeFile(
+      metroConfigJs,
+      beautify.js(`const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+/**
+ * Metro configuration
+ * https://reactnative.dev/docs/metro
+ *
+ * @type {import('metro-config').MetroConfig}
+ */
+const config = {
+  ${projectRoot ? `projectRoot: "${projectRoot}",` : ''}
+  ${
+    watchFolders
+      ? `watchFolders: [
+        ${watchFolders
+          .map((x) => `"${x.replace(/\\/g, '\\\\')}"`)
+          .join(`,${os.EOL}`)}
+      ],`
+      : ''
+  }
+  resolver: {
+    enableGlobalPackages: true,
+    blockList: [
+      // Ignore IntelliJ directories
+      /.*\\.idea\\/.*/,
+      // ignore git directories
+      /.*\\.git\\/.*/,
+      // Ignore android directories
+      /.*\\/app\\/build\\/.*/,
+      ${blacklistRe ? blacklistRe.join(`,${os.EOL}`) : ''}
+    ],
+    ${
+      extraNodeModules
+        ? `extraNodeModules: ${JSON.stringify(extraNodeModules, null, 2)},`
+        : ''
+    }
+    ${assetsTxt}
+};
+
+module.exports = mergeConfig(getDefaultConfig(__dirname), config);
+`),
+    );
+  }
+
+  return fs.writeFile(
+    metroConfigJs,
+    beautify.js(`const blacklist = require('${getMetroBlacklistPath(
+      reactNativeVersion,
+    )}');
+module.exports = {
+  ${projectRoot ? `projectRoot: "${projectRoot}",` : ''}
+  ${
+    watchFolders
+      ? `watchFolders: [
+        ${watchFolders
+          .map((x) => `"${x.replace(/\\/g, '\\\\')}"`)
+          .join(`,${os.EOL}`)}
+      ],`
+      : ''
+  }
+  resolver: {
+    blacklistRE: blacklist([
+      // Ignore IntelliJ directories
+      /.*\\.idea\\/.*/,
+      // ignore git directories
+      /.*\\.git\\/.*/,
+      // Ignore android directories
+      /.*\\/app\\/build\\/.*/,
+      ${blacklistRe ? blacklistRe.join(`,${os.EOL}`) : ''}
+    ]),
+    ${
+      extraNodeModules
+        ? `extraNodeModules: ${JSON.stringify(extraNodeModules, null, 2)},`
+        : ''
+    }
+    ${assetsTxt}
 };
 `),
   );

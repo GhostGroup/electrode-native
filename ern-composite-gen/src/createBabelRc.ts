@@ -12,7 +12,7 @@ export async function createBabelRc({
   cwd: string;
   extraPaths?: string[];
 }) {
-  log.debug('Creating top level composite .babelrc');
+  log.info('Creating top level composite .babelrc');
   const compositePackageJson = await readPackageJson(cwd);
   const compositeNodeModulesPath = path.join(cwd, 'node_modules');
   const compositeReactNativeVersion = await getNodeModuleVersion({
@@ -110,7 +110,9 @@ export async function createBabelRc({
     }
   }
 
-  if (semver.gte(compositeReactNativeVersion, '0.57.0')) {
+  if (semver.gte(compositeReactNativeVersion, '0.74.0')) {
+    compositeBabelRc.presets = ['module:@react-native/babel-preset'];
+  } else if (semver.gte(compositeReactNativeVersion, '0.57.0')) {
     compositeBabelRc.presets = ['module:metro-react-native-babel-preset'];
   } else {
     compositeBabelRc.presets = ['react-native'];

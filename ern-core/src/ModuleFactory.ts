@@ -4,6 +4,7 @@ import shell from './shell';
 import { yarn } from './clients';
 import { PackagePath } from './PackagePath';
 import { readPackageJson } from './packageJsonFileUtils';
+import log from './log';
 
 export class ModuleFactory<T> {
   private readonly packagePrefix?: string;
@@ -24,6 +25,7 @@ export class ModuleFactory<T> {
       throw new Error(`Not a supported package path : ${p.toString()}`);
     }
     const pathToModule = await this.getLocalPathToPackage(p);
+    log.info(`pathToModule: ${pathToModule}`);
     return this.instantiateModule(pathToModule);
   }
 
@@ -33,6 +35,7 @@ export class ModuleFactory<T> {
   }
 
   private async getLocalPathToPackage(p: PackagePath): Promise<string> {
+    log.info(`p.isFilePath: ${p.isFilePath}`);
     return p.isFilePath
       ? this.getPathToLocalPackage(p)
       : await this.getPathToRegistryPackage(p);
@@ -51,6 +54,7 @@ export class ModuleFactory<T> {
     const modulePackagePath = this.packagePrefix
       ? this.processPackageRegistryPath(p)
       : p;
+    // @ToDo: Comment if broken!
     await this.refreshCacheFor(modulePackagePath);
 
     return path.join(
@@ -65,6 +69,7 @@ export class ModuleFactory<T> {
   }
 
   private async createPackageCache() {
+    log.info('createPackageCache');
     shell.mkdir('-p', this.packageCachePath);
     try {
       shell.pushd(this.packageCachePath);

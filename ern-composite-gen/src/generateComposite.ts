@@ -141,6 +141,8 @@ async function generateFullComposite(
     metroExtraNodeModules?: { [pkg: string]: string };
   } = {},
 ) {
+  log.info('Generating Full Composite');
+
   if (await fs.pathExists(outDir)) {
     await kax
       .task('Cleaning up existing composite directory')
@@ -163,6 +165,7 @@ async function generateFullComposite(
 
   try {
     if (remoteMiniapps.length > 0) {
+      log.info('Multiple Remote Miniapps');
       // Only install remote miniapps coming from git/npm
       await installPackages({
         cwd: outDir,
@@ -171,6 +174,7 @@ async function generateFullComposite(
         pathToYarnLock,
       });
     } else {
+      log.info('No Multiple or One Remote Miniapps');
       await yarn.init();
       // We need to install react-native in top level composite as it won't
       // transitively come with install of a miniapp in composite (we didn't
@@ -196,7 +200,25 @@ async function generateFullComposite(
       extraJsDependencies.push(
         PackagePath.fromString('react-native-electrode-bridge@^1.0.0'),
       );
-      extraJsDependencies = [...extraJsDependencies, ...jsApiImplDependencies];
+
+      const extraExtraJsDependencies: PackagePath[] = [];
+      if (semver.gte(miniAppRnVersion, '0.74.0')) {
+        extraExtraJsDependencies.push(
+          PackagePath.fromString('@babel/core@^7.20.0'),
+          PackagePath.fromString('@babel/preset-env@^7.20.0'),
+          PackagePath.fromString('@babel/runtime@^7.20.0'),
+          PackagePath.fromString('@babel/core@^7.20.0'),
+          PackagePath.fromString('@react-native/babel-preset@0.74.83'),
+          PackagePath.fromString('@react-native/eslint-config@0.74.83'),
+          PackagePath.fromString('@react-native/metro-config@0.74.83'),
+        );
+      }
+
+      extraJsDependencies = [
+        ...extraJsDependencies,
+        ...extraExtraJsDependencies,
+        ...jsApiImplDependencies,
+      ];
     }
 
     await addRNStartScriptToPjson({ cwd: outDir });

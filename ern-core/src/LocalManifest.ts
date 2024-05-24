@@ -4,6 +4,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import semver from 'semver';
 import Platform from './Platform';
+import log from './log';
 
 const manifestFileName = 'manifest.json';
 const pluginConfigFileName = 'config.json';
@@ -16,6 +17,8 @@ export class LocalManifest {
 
   public async getManifest(): Promise<any> {
     const pathToManifestJson = path.join(this.manifestPath, manifestFileName);
+    log.info(`pathToManifestJson: ${pathToManifestJson}`);
+
     return Promise.resolve(
       JSON.parse(fs.readFileSync(pathToManifestJson, 'utf-8')),
     );

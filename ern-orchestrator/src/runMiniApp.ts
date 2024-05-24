@@ -181,9 +181,15 @@ export async function runMiniApp(
     napDescriptor: napDescriptor || undefined,
     outDir,
   });
+  log.info('Finished generating container!');
 
   const pathToRunner = path.join(cwd, platform);
   const oldAndroidRunner = isOldAndroidRunner();
+
+  log.info(`oldAndroidRunner: ${oldAndroidRunner}`);
+  log.info(`pathToRunner: ${pathToRunner}`);
+  log.info(`outDir: ${outDir}`);
+  log.info(`jsMainModuleName: ${jsMainModuleName}`);
 
   if (platform === 'android') {
     if (oldAndroidRunner) {
